@@ -22,6 +22,12 @@ def extract_pages(pdf_path, start_page, end_page):
     output_filename = f"{base_name}_p{start_page}-{end_page}.pdf"
     output_path = os.path.join(dir_name, output_filename)
 
+    if os.path.exists(output_path):
+        answer = input(f"'{output_filename}' already exists. Overwrite? [y/N]: ").strip().lower()
+        if answer != "y":
+            print("Aborted.")
+            return
+
     try:
         reader = PdfReader(pdf_path)
         writer = PdfWriter()
