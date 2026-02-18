@@ -1,5 +1,6 @@
 import argparse
 import os
+import sys
 from pypdf import PdfReader, PdfWriter
 
 def extract_pages(pdf_path, start_page, end_page):
@@ -37,16 +38,23 @@ def extract_pages(pdf_path, start_page, end_page):
             print(f"Error: PDF has {total_pages} pages. Invalid range.")
             return
 
-        print(f"Processing '{base_name}'...")
-        
-        # pypdf uses 0-based indexing, user input is 1-based
-        for i in range(start_page - 1, end_page):
-            writer.add_page(reader.pages[i])
+        page_count = end_page - start_page + 1
+        print(f"Processing '{base_name}' ({page_count} page{'s' if page_count != 1 else ''})...")
 
+        # pypdf uses 0-based indexing, user input is 1-based
+        for idx, i in enumerate(range(start_page - 1, end_page), 1):
+            writer.add_page(reader.pages[i])
+            print(f"\r  Extracting page {idx}/{page_count}...", end="", flush=True)
+
+        print()
+
+        sys.stdout.write("  Writing output file...")
+        sys.stdout.flush()
         with open(output_path, "wb") as f:
             writer.write(f)
+        print(" done.")
 
-        print(f"Done! Saved to:\n{output_path}")
+        print(f"Saved to:\n{output_path}")
 
     except Exception as e:
         print(f"An error occurred: {e}")
