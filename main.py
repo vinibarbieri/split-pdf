@@ -9,8 +9,16 @@ def extract_pages(pdf_path, start_page, end_page):
         print(f"Error: File not found: {pdf_path}")
         return
 
+    if not pdf_path.lower().endswith(".pdf"):
+        print("Error: File is not a PDF.")
+        return
+
+    if start_page > end_page:
+        print(f"Error: Start page ({start_page}) is greater than end page ({end_page}).")
+        return
+
+    base_name, _ = os.path.splitext(os.path.basename(pdf_path))
     dir_name = os.path.dirname(pdf_path)
-    base_name = os.path.basename(pdf_path).replace(".pdf", "")
     output_filename = f"{base_name}_p{start_page}-{end_page}.pdf"
     output_path = os.path.join(dir_name, output_filename)
 
@@ -37,15 +45,27 @@ def extract_pages(pdf_path, start_page, end_page):
     except Exception as e:
         print(f"An error occurred: {e}")
 
+def read_int(prompt):
+    while True:
+        value = input(prompt)
+        try:
+            return int(value)
+        except ValueError:
+            print(f"Error: '{value}' is not a valid number. Try again.")
+
 if __name__ == "__main__":
     if len(sys.argv) == 4:
         path = sys.argv[1]
-        start = int(sys.argv[2])
-        end = int(sys.argv[3])
+        try:
+            start = int(sys.argv[2])
+            end = int(sys.argv[3])
+        except ValueError:
+            print("Error: Start and end pages must be numbers.")
+            sys.exit(1)
         extract_pages(path, start, end)
     else:
         print("--- PDF Extractor ---")
         path = input("Drag the PDF file here: ")
-        start = int(input("Start page: "))
-        end = int(input("End page: "))
+        start = read_int("Start page: ")
+        end = read_int("End page: ")
         extract_pages(path, start, end)
