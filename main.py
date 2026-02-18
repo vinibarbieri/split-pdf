@@ -1,4 +1,4 @@
-import sys
+import argparse
 import os
 from pypdf import PdfReader, PdfWriter
 
@@ -59,19 +59,24 @@ def read_int(prompt):
         except ValueError:
             print(f"Error: '{value}' is not a valid number. Try again.")
 
+def build_parser():
+    parser = argparse.ArgumentParser(
+        description="Extract a range of pages from a PDF file."
+    )
+    parser.add_argument("file", nargs="?", help="path to the PDF file")
+    parser.add_argument("start", nargs="?", type=int, help="start page (1-based)")
+    parser.add_argument("end", nargs="?", type=int, help="end page (1-based)")
+    return parser
+
 if __name__ == "__main__":
-    if len(sys.argv) == 4:
-        path = sys.argv[1]
-        try:
-            start = int(sys.argv[2])
-            end = int(sys.argv[3])
-        except ValueError:
-            print("Error: Start and end pages must be numbers.")
-            sys.exit(1)
-        extract_pages(path, start, end)
+    parser = build_parser()
+    args = parser.parse_args()
+
+    if args.file and args.start is not None and args.end is not None:
+        extract_pages(args.file, args.start, args.end)
     else:
         print("--- PDF Extractor ---")
-        path = input("Drag the PDF file here: ")
-        start = read_int("Start page: ")
-        end = read_int("End page: ")
+        path = args.file or input("Drag the PDF file here: ")
+        start = args.start if args.start is not None else read_int("Start page: ")
+        end = args.end if args.end is not None else read_int("End page: ")
         extract_pages(path, start, end)
