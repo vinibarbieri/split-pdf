@@ -3,7 +3,7 @@ import os
 import sys
 from pypdf import PdfReader, PdfWriter
 
-def extract_pages(pdf_path, start_page, end_page):
+def extract_pages(pdf_path, start_page, end_page, output_name=None):
     pdf_path = pdf_path.strip().strip("'").strip('"')
     
     if not os.path.exists(pdf_path):
@@ -20,7 +20,14 @@ def extract_pages(pdf_path, start_page, end_page):
 
     base_name, _ = os.path.splitext(os.path.basename(pdf_path))
     dir_name = os.path.dirname(pdf_path)
-    output_filename = f"{base_name}_p{start_page}-{end_page}.pdf"
+
+    if output_name:
+        if not output_name.lower().endswith(".pdf"):
+            output_name += ".pdf"
+        output_filename = output_name
+    else:
+        output_filename = f"{base_name}_p{start_page}-{end_page}.pdf"
+
     output_path = os.path.join(dir_name, output_filename)
 
     if os.path.exists(output_path):
@@ -74,6 +81,7 @@ def build_parser():
     parser.add_argument("file", nargs="?", help="path to the PDF file")
     parser.add_argument("start", nargs="?", type=int, help="start page (1-based)")
     parser.add_argument("end", nargs="?", type=int, help="end page (1-based)")
+    parser.add_argument("-o", "--output", help="custom output filename")
     return parser
 
 if __name__ == "__main__":
@@ -81,10 +89,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.file and args.start is not None and args.end is not None:
-        extract_pages(args.file, args.start, args.end)
+        extract_pages(args.file, args.start, args.end, args.output)
     else:
         print("--- PDF Extractor ---")
         path = args.file or input("Drag the PDF file here: ")
         start = args.start if args.start is not None else read_int("Start page: ")
         end = args.end if args.end is not None else read_int("End page: ")
-        extract_pages(path, start, end)
+        output = args.output or input("Output filename (leave blank for default): ").strip() or None
+        extract_pages(path, start, end, output)
