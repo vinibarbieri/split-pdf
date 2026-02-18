@@ -1,7 +1,10 @@
 import argparse
+import logging
 import os
 import sys
 from pypdf import PdfReader, PdfWriter
+
+logging.getLogger("pypdf").setLevel(logging.ERROR)
 
 def extract_pages(pdf_path, start_page, end_page, output_name=None):
     pdf_path = pdf_path.strip().strip("'").strip('"')
@@ -46,6 +49,7 @@ def extract_pages(pdf_path, start_page, end_page, output_name=None):
             return
 
         page_count = end_page - start_page + 1
+        print("\n--------------------------------\n")
         print(f"Processing '{base_name}' ({page_count} page{'s' if page_count != 1 else ''})...")
 
         # pypdf uses 0-based indexing, user input is 1-based
@@ -59,9 +63,11 @@ def extract_pages(pdf_path, start_page, end_page, output_name=None):
         sys.stdout.flush()
         with open(output_path, "wb") as f:
             writer.write(f)
-        print(" done.")
+        print("\nDONE!")
 
-        print(f"Saved to:\n{output_path}")
+        print("\n--------------------------------\n")
+
+        print(f"SAVED TO:\n{output_path}\n")
 
     except Exception as e:
         print(f"An error occurred: {e}")
