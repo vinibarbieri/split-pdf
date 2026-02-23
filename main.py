@@ -7,7 +7,7 @@ from pypdf import PdfReader, PdfWriter
 logging.getLogger("pypdf").setLevel(logging.ERROR)
 
 def extract_pages(pdf_path, start_page, end_page, output_name=None):
-    pdf_path = pdf_path.strip().strip("'").strip('"')
+    pdf_path = pdf_path.strip().strip("'").strip('"').replace("\\ ", " ")
     
     if not os.path.exists(pdf_path):
         print(f"Error: File not found: {pdf_path}")
