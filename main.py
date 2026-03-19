@@ -6,6 +6,18 @@ from pypdf import PdfReader, PdfWriter
 
 logging.getLogger("pypdf").setLevel(logging.ERROR)
 
+def add_page_without_annotations(writer, page):
+    """
+    Add page while dropping annotations/links to avoid pypdf spending
+    a long time resolving named destinations on some PDFs.
+    """
+    try:
+        writer.add_page(page, excluded_keys=("/Annots",))
+    except TypeError:
+        if "/Annots" in page:
+            del page["/Annots"]
+        writer.add_page(page)
+
 def extract_pages(pdf_path, start_page, end_page, output_name=None):
     pdf_path = pdf_path.strip().strip("'").strip('"').replace("\\ ", " ")
     
@@ -54,7 +66,7 @@ def extract_pages(pdf_path, start_page, end_page, output_name=None):
 
         # pypdf uses 0-based indexing, user input is 1-based
         for idx, i in enumerate(range(start_page - 1, end_page), 1):
-            writer.add_page(reader.pages[i])
+            add_page_without_annotations(writer, reader.pages[i])
             print(f"\r  Extracting page {idx}/{page_count}...", end="", flush=True)
 
         print()
